@@ -8,13 +8,13 @@ For each block, determine which image from a preexisting bank of images has the 
 Return an array of filenames, to place images.
 
 
-First test - able to determine average colour of a block? Of a picture?
 https://github.com/oliver-moran/jimp#low-level-manipulation
-Sum the r, g, b values for each pixel and divide each by number of pixels scanned to find the average. Check p5/processing work to check whether bitwise operators would be useful.
+Check whether bitwise operators would be useful.
 
 
-Second - with test picture, split into blocks and get average colour of each block. Store result in array/object.
-Use object to lay out blocks of pure average colour.
+Next step, 
+Work out how to match colour block values to thumbnail image colours (binary search on ordered colour values possible?) Colour values in format [R,G,B,Total] - compare each channel? Total brightness? No consideration of variance in file :/ e.g. brown all over will be middling value, third red, third blue, third green will be the same value. How to change that?
 
-Next step, create bank of reference images, create small versions (30px x 20px) and store their filename and colour in an object for reference.
-Work out how to match (binary search on ordered colour values possible?) Colour values in format RGB - compare each channel?
+Once have a matching algorithm, place thumbs in html grid as background images.
+
+Then, enable any file to be source - via upload or otherwise. Simple express server with file upload, and receive organised array of image thumbnails when it's processed (resized and analysed).

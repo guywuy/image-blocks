@@ -11,7 +11,7 @@ const imageURL = 'image.jpg';
 
 // 20 blocks across, 20 blocks down.
 
-Jimp.read("src/" + imageURL).then(function (image) {
+Jimp.read("input/" + imageURL).then(function (image) {
 
     let avgRGBInEachBlock = [];
 
