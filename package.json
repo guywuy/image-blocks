@@ -1,0 +1,15 @@
+{
+  "name": "photo-to-colour-blocks",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "guywuy <gcschino@hotmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "image-average-color": "^1.0.0",
+    "jimp": "^0.2.28"
+  }
+}
