@@ -4,17 +4,12 @@ Able to accept an image, and replace it with an array of smaller images, that gi
 Resize the image e.g. to 600px x 400px.
 Split into small blocks (e.g. 30px x 20px).
 For each block, determine the average colour.
-For each block, determine which image from a preexisting bank of images has the closest average colour.
+For each block, determine which image from a preexisting bank of images has the perceptually closest average colour.
 Return an array of filenames, to place images.
-
 
 https://github.com/oliver-moran/jimp#low-level-manipulation
 Check whether bitwise operators would be useful.
 
 
 Next step, 
-Work out how to match colour block values to thumbnail image colours (binary search on ordered colour values possible?) Colour values in format [R,G,B,Total] - compare each channel? Total brightness? No consideration of variance in file :/ e.g. brown all over will be middling value, third red, third blue, third green will be the same value. How to change that?
-
-Once have a matching algorithm, place thumbs in html grid as background images.
-
-Then, enable any file to be source - via upload or otherwise. Simple express server with file upload, and receive organised array of image thumbnails when it's processed (resized and analysed).
+ enable any file to be source - via upload or otherwise. Simple express server with file upload, and receive organised array of image thumbnails when it's processed (resized and analysed).

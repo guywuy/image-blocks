@@ -25,14 +25,18 @@
       padding: 0;
     }
 
+    img {
+      max-width: 100%;
+    }
+
     .image-grid {
         display: grid;
         grid-template-columns: repeat(20, 30px);
         grid-template-rows: repeat(20, 20px);
     }
 
-    .image-grid__block {
-        /* border: 1px solid red; */
+    .image-grid__block:hover {
+        transform: scale(2);
     }
 
   </style>
@@ -442,6 +446,10 @@
       <div class="image-grid__block"></div>
       <div class="image-grid__block"></div>
     </section>
+
+    <section class="image-grid result">
+      
+    </section>
   </main>
 
   
@@ -451,16 +459,38 @@
     .then( file => {
         return file.json();
     }).then( data =>{
-        console.log(data)
         const rgbColours = data.map( rgbArray => {
             return `rgb(${rgbArray[0]},${rgbArray[1]},${rgbArray[2]})`;
         })
         let imageBlocks = document.querySelectorAll('.image-grid__block');
 
-        console.log(rgbColours[0]);
-
         imageBlocks.forEach( (block, i) => {
             block.style.backgroundColor = rgbColours[i]
+        })
+    }).catch( err => {
+        console.error(err)
+    })
+    
+    const filesToUse = fetch('FileNamesToUse.json')
+    .then( file => {
+        return file.json();
+    }).then( fileNames =>{
+
+        // const rgbColours = data.map( rgbArray => {
+        //     return `rgb(${rgbArray[0]},${rgbArray[1]},${rgbArray[2]})`;
+        // })
+        // let imageBlocks = document.querySelectorAll('.image-grid__block');
+
+        // console.log(rgbColours[0]);
+        const resultDiv = document.querySelector('.result');
+
+        fileNames.forEach( (file, i) => {
+          let img = document.createElement('img');
+          img.src = `./ImageThumbs/${file}`;
+          img.classList.add('image-grid__block');
+          // let div = document.createElement('div');
+          // div.appendChild(img);
+          resultDiv.appendChild(img)
         })
     }).catch( err => {
         console.error(err)

@@ -1,5 +1,4 @@
 const Jimp = require('jimp');
-const Average = require('image-average-color');
 const fs = require('fs');
 
 
