@@ -13,3 +13,12 @@ Check whether bitwise operators would be useful.
 
 Next step, 
  enable any file to be source - via upload or otherwise. Simple express server with file upload, and receive organised array of image thumbnails when it's processed (resized and analysed).
+    Make function for file resize which returns a promise, so we can chain next events (getFilenames) to when it completes 
+
+
+
+ Step One - Generate thumbnails - Manual
+ Step Two - Analyse thumbnails - Manual
+
+ Step Three - Split image into blocks and get matching filenames, display result - Make automatic.
+    For now - put source images in 'input' folder. Run resizeImages. Change desired filename in index. Run node index. Run getFilenames.

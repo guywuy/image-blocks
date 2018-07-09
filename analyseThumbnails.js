@@ -8,8 +8,6 @@ const imagesPath = './ImageThumbs';
 //Return each file in a directory (as array of items)
 fs.readdir(imagesPath, function(err, items) {
     if (err) throw err;
-
-    console.log('items:', items);
     
     var progress = items.length;
 
@@ -21,7 +19,6 @@ fs.readdir(imagesPath, function(err, items) {
         Average(file, (err, color) => {
             if (err) throw err;
             
-            console.log(color);
             outputList.push({
                 'name': fileName,
                 'red' : color[0],

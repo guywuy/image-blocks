@@ -1,9 +1,8 @@
 const Chroma = require('chroma-js');
-const thumbnailData = require('./ThumbnailFileData.json');
 
 
 // Take an input rgb array, return the closest colour matching filename
-function getClosestThumbnail(targetColour){
+function getClosestThumbnail(targetColour, thumbnails){
 
     
     // Chroma Color can take an array of rgb values
@@ -12,7 +11,7 @@ function getClosestThumbnail(targetColour){
     let closest = 999;
     let winner = '';
     
-    thumbnailData.forEach(element => {
+    thumbnails.forEach(element => {
         
         let color = Chroma([element.red, element.green, element.blue]);
         let delta = Chroma.deltaE(referenceColour, color);
