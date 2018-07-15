@@ -3,7 +3,7 @@ const fs = require('fs');
 
 const outputList = [];
 
-const imagesPath = './ImageThumbs';
+const imagesPath = './img/ImageThumbs';
 
 //Return each file in a directory (as array of items)
 fs.readdir(imagesPath, function(err, items) {

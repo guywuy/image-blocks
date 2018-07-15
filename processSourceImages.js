@@ -4,8 +4,8 @@ const Average = require('image-average-color');
 
 // For all files in source Images Directory, resize them, and also analyse the small images for the average colour.
 
-const inputImagesPath = './srcImages';
-const outputImagesPath = './ImageThumbs';
+const inputImagesPath = './img/srcImages';
+const outputImagesPath = './img/ImageThumbs';
 
 const averageColoursArray = [];
 
@@ -24,7 +24,7 @@ fs.readdir(inputImagesPath, function(err, items) {
             if (err) throw err;
 
             image.cover(60, 40)            // resize
-                .quality(60)                 // set JPEG quality
+                .quality(70)                 // set JPEG quality
                 .write(outFile, function(){
                     
                     Average(outFile, (err, color) => {

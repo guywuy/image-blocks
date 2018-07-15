@@ -1,8 +1,8 @@
 const Jimp = require('jimp');
 const fs = require('fs');
 
-const inputImagesPath = './srcImages';
-const outputImagesPath = './ImageThumbs';
+const inputImagesPath = './img/srcImages';
+const outputImagesPath = './img/ImageThumbs';
 
 //Return each file in a directory (as array of items)
 fs.readdir(inputImagesPath, function(err, items) {

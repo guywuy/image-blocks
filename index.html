@@ -6,6 +6,8 @@
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Images</title>
+  <script src="https://cdn.rawgit.com/oliver-moran/jimp/v0.2.27/browser/lib/jimp.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/1.3.7/chroma.min.js"></script>
 
   <style>
     html {
@@ -44,6 +46,7 @@
 
 <body>
   <main class="container">
+    <input type="file" onchange="newFile(this);">
     <section class="image-grid">
       <div class="image-grid__block"></div>
       <div class="image-grid__block"></div>
@@ -454,12 +457,9 @@
 
   
   <script>
-  
-    const colours = fetch('BlockColours.json')
-    .then( file => {
-        return file.json();
-    }).then( data =>{
-        const rgbColours = data.map( rgbArray => {
+
+    function displayBlockColours(blockData) {
+      const rgbColours = blockData.map( rgbArray => {
             return `rgb(${rgbArray[0]},${rgbArray[1]},${rgbArray[2]})`;
         })
         let imageBlocks = document.querySelectorAll('.image-grid__block');
@@ -467,34 +467,99 @@
         imageBlocks.forEach( (block, i) => {
             block.style.backgroundColor = rgbColours[i]
         })
-    }).catch( err => {
-        console.error(err)
-    })
-    
-    const filesToUse = fetch('FileNamesToUse.json')
-    .then( file => {
-        return file.json();
-    }).then( fileNames =>{
+    }
 
-        // const rgbColours = data.map( rgbArray => {
-        //     return `rgb(${rgbArray[0]},${rgbArray[1]},${rgbArray[2]})`;
-        // })
-        // let imageBlocks = document.querySelectorAll('.image-grid__block');
+    // Take a targetColour input (rgb array), return the closest colour matching filename
+    function getClosestThumbnail(targetColour, thumbnails){ 
+      // Chroma Color can take an array of rgb values
+      let referenceColour = chroma(targetColour);
 
-        // console.log(rgbColours[0]);
-        const resultDiv = document.querySelector('.result');
+      let closest = 999;
+      let winner = '';
+
+      thumbnails.forEach(element => {
+          
+          let color = chroma([element.red, element.green, element.blue]);
+          let delta = chroma.deltaE(referenceColour, color);
+          if (delta < closest) {
+              closest = delta;
+              winner = element.name;
+          }
+      });
+
+      return winner;
+    }
+
+    function assignImagesToGrid(fileNames) {
+        const resultGrid = document.querySelector('.result');
+
+        // If there are any images from a previous upload, remove them
+        while (resultGrid.firstChild) resultGrid.removeChild(resultGrid.firstChild);
 
         fileNames.forEach( (file, i) => {
           let img = document.createElement('img');
-          img.src = `./ImageThumbs/${file}`;
+          img.src = `img/ImageThumbs/${file}`;
           img.classList.add('image-grid__block');
-          // let div = document.createElement('div');
-          // div.appendChild(img);
-          resultDiv.appendChild(img)
+          resultGrid.appendChild(img)
         })
-    }).catch( err => {
-        console.error(err)
-    })
+    }
+
+    function displayThumbnails(blockData){
+      let filenamesToDisplay = [];
+
+      blockData.forEach(block => {
+        filenamesToDisplay.push(getClosestThumbnail(block, thumbnailData));
+      });
+
+      assignImagesToGrid(filenamesToDisplay);
+    }
+
+    function workerMessageHandler(e) {
+        var returnObject = e.data;
+
+        if (e.data.type === "ARRAY") {
+            displayBlockColours(returnObject.data);
+            displayThumbnails(returnObject.data);
+        } else {
+            console.warn("postMessage returned unexpected data:",returnObject);
+        }
+    }
+
+    function createWorkerForImageInput(input,filename){
+        var worker = new Worker("jimp-worker.js"),
+            start = (new Date()).getTime();
+        worker.onmessage = function(e){
+            console.log(filename + " processed to "+ e.data.type +" in " + ((new Date()).getTime() - start) + "ms");
+            workerMessageHandler(e);
+        };
+        worker.onerror = function(e){
+            var message = "Could not process "+ filename + ': Line '+ e.lineno+ ' in '+ e.filename+ ': '+ e.message;
+            alert(message);
+            console.warn(message);
+        };
+        worker.postMessage(input);
+    }
+
+    function newFile(element){
+
+        // Chrome allows direct transfer of element.files, but that object is not a
+        // "transferable" object in mozilla's world.
+        // To speed file transfer in a cross-browser way, readAsArrayBuffer here on the main thread
+        // then pass the arraybuffer to the worker thread.
+        readFileAndProcess(element.files[0]);
+
+        function readFileAndProcess(readfile){
+          var fr = new FileReader(),
+          filename = readfile.name.toString();
+          fr.addEventListener("load",function(){
+            createWorkerForImageInput(this.result,filename);
+          });
+          fr.readAsArrayBuffer(readfile);
+        }
+    }
+
+
+    const thumbnailData =[{"name":"DSC00623.jpg","red":121,"green":131,"blue":128,"total":380},{"name":"DSC01955.jpg","red":142,"green":128,"blue":111,"total":381},{"name":"DSC00932.jpg","red":46,"green":39,"blue":29,"total":114},{"name":"DSC02410.jpg","red":146,"green":137,"blue":135,"total":418},{"name":"DSC02058.jpg","red":97,"green":88,"blue":83,"total":268},{"name":"DSC01960.jpg","red":120,"green":120,"blue":119,"total":359},{"name":"DSC02428.jpg","red":76,"green":64,"blue":62,"total":202},{"name":"DSC02600.jpg","red":48,"green":61,"blue":60,"total":169},{"name":"DSC02586.jpg","red":104,"green":122,"blue":108,"total":334},{"name":"DSC00793.jpg","red":124,"green":136,"blue":154,"total":414},{"name":"DSC02353.jpg","red":144,"green":77,"blue":74,"total":295},{"name":"DSC02531.jpg","red":86,"green":75,"blue":73,"total":234},{"name":"DSC02639.jpg","red":100,"green":88,"blue":86,"total":274},{"name":"DSC00957.jpg","red":50,"green":36,"blue":22,"total":108},{"name":"DSC02576.jpg","red":164,"green":147,"blue":126,"total":437},{"name":"DSC00801.jpg","red":112,"green":107,"blue":71,"total":290},{"name":"DSC03155.jpg","red":116,"green":115,"blue":122,"total":353},{"name":"DSC03217.jpg","red":128,"green":110,"blue":99,"total":337},{"name":"DSC03116.jpg","red":184,"green":154,"blue":135,"total":473},{"name":"DSC03012.jpg","red":110,"green":94,"blue":90,"total":294},{"name":"DSC03159.jpg","red":91,"green":60,"blue":56,"total":207},{"name":"DSC03172.jpg","red":120,"green":103,"blue":91,"total":314},{"name":"DSC03178.jpg","red":130,"green":123,"blue":115,"total":368},{"name":"DSC03543.jpg","red":106,"green":103,"blue":90,"total":299},{"name":"DSC02748.jpg","red":106,"green":133,"blue":118,"total":357},{"name":"DSC02687.jpg","red":77,"green":108,"blue":152,"total":337},{"name":"DSC04290.jpg","red":90,"green":65,"blue":55,"total":210},{"name":"DSC04355.jpg","red":144,"green":105,"blue":97,"total":346},{"name":"DSC03893.jpg","red":94,"green":93,"blue":94,"total":281},{"name":"DSC02693.jpg","red":157,"green":157,"blue":154,"total":468},{"name":"DSC04470.jpg","red":220,"green":224,"blue":208,"total":652},{"name":"DSC04632_1.jpg","red":104,"green":147,"blue":191,"total":442},{"name":"DSC04276.jpg","red":156,"green":117,"blue":49,"total":322},{"name":"DSC04841.jpg","red":98,"green":108,"blue":143,"total":349},{"name":"DSC04640.jpg","red":132,"green":145,"blue":102,"total":379},{"name":"DSC04514.jpg","red":96,"green":100,"blue":97,"total":293},{"name":"DSC04658.jpg","red":100,"green":140,"blue":155,"total":395},{"name":"DSC04942.jpg","red":107,"green":98,"blue":58,"total":263},{"name":"DSC05480.jpg","red":202,"green":199,"blue":192,"total":593},{"name":"DSC04958.jpg","red":163,"green":114,"blue":97,"total":374},{"name":"DSC05097.jpg","red":11,"green":65,"blue":14,"total":90},{"name":"DSC05160.jpg","red":84,"green":75,"blue":61,"total":220},{"name":"DSC05720.jpg","red":132,"green":154,"blue":171,"total":457},{"name":"DSC06278.jpg","red":178,"green":182,"blue":179,"total":539},{"name":"DSC06247.jpg","red":72,"green":85,"blue":70,"total":227},{"name":"DSC05787.jpg","red":93,"green":110,"blue":116,"total":319},{"name":"DSC06348.jpg","red":96,"green":90,"blue":78,"total":264},{"name":"DSC07758.jpg","red":61,"green":79,"blue":91,"total":231},{"name":"DSC06847.jpg","red":43,"green":61,"blue":32,"total":136},{"name":"DSC07777.jpg","red":49,"green":66,"blue":76,"total":191},{"name":"DSC07921.jpg","red":108,"green":109,"blue":116,"total":333},{"name":"DSC07960.jpg","red":80,"green":88,"blue":78,"total":246},{"name":"IMG_20170901_092853.jpg","red":96,"green":98,"blue":98,"total":292},{"name":"IMG_20180303_140658.jpg","red":220,"green":219,"blue":224,"total":663},{"name":"DSC07948.jpg","red":79,"green":104,"blue":142,"total":325},{"name":"IMG_20170722_152011.jpg","red":134,"green":127,"blue":122,"total":383},{"name":"IMG_20180423_215115.jpg","red":119,"green":80,"blue":57,"total":256},{"name":"IMG_20171104_133302.jpg","red":77,"green":67,"blue":56,"total":200},{"name":"r001-010.jpg","red":218,"green":174,"blue":81,"total":473},{"name":"r001-022.jpg","red":115,"green":130,"blue":137,"total":382},{"name":"r001-014.jpg","red":152,"green":164,"blue":107,"total":423}]
 
   </script>
 
